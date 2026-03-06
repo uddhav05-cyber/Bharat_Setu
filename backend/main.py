@@ -299,13 +299,16 @@ app.add_middleware(
 )
 
 # Register routers
-from routers import auth, farms, verification, alerts, dashboard
+from routers import auth, farms, verification, alerts, dashboard, voice, certificates, twin
 
 app.include_router(auth.router)
 app.include_router(farms.router)
 app.include_router(verification.router)
 app.include_router(alerts.router)
 app.include_router(dashboard.router)
+app.include_router(voice.router)
+app.include_router(certificates.router)
+app.include_router(twin.router)
 
 
 @app.get("/", tags=["Root"])
