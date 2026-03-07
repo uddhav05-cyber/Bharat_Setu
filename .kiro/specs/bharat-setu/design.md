@@ -13,7 +13,7 @@ This design addresses four critical gaps identified in the strategic vision to e
 3. **Frugal Edge Computing**: Employs on-device transcription (Vosk-Lite) and duty-cycled sensors to achieve 8-hour battery life on budget smartphones with intermittent 2G connectivity
 4. **Boolean Threshold Logic**: Replaces weighted-average risk scoring with one-strike crisis detection to prevent false negatives in distress prediction
 
-The system implements a 70/30 effort split: 70% focused on Carbon-Kosh as the core data engine, and 30% on downstream applications (Gram-Twin and Migration-Shield) that reuse carbon verification data. This design leverages AWS Lambda for compute, S3 for storage, Amazon Aurora Serverless v2 (PostgreSQL with PostGIS extension) for geospatial data, and a lean AI strategy combining deep learning (SageMaker for Sentinel-1 SAR analysis) with generative AI (Bedrock Claude 3 Haiku for intent extraction).
+The system implements a 70/30 effort split: 70% focused on Carbon-Kosh as the core data engine, and 30% on downstream applications (Gram-Twin and Migration-Shield) that reuse carbon verification data. This design leverages AWS Service Component for compute, Local Filesystem for storage, SQLite Database (PostgreSQL with PostGIS extension) for geospatial data, and a lean AI strategy combining deep learning (Local ML Model for Sentinel-1 SAR analysis) with generative AI (Local Model Claude 3 Haiku for intent extraction).
 
 ## Indo-Cloud Hybrid Stack (Pilot-Ready)
 
@@ -23,9 +23,9 @@ This is the definitive, **lean** technology stack that marries AWS computational
 
 | Component | Service | Purpose |
 |-----------|---------|---------|
-| **Core Compute** | AWS Lambda (Python) | Runs the "Traffic Light" algorithm and LSI threshold checks. Serverless architecture keeps costs within $2.50/village/month cap. |
-| **GenAI Intelligence** | Amazon Bedrock (Claude 3 Haiku) | Intent Extraction: Takes farmer's translated text from Bhashini and converts it into structured JSON actions (e.g., `{ "action": "check_weather", "location": "pune" }`). |
-| **Satellite Analysis** | Amazon SageMaker | Hosts the Multi-Modal Satellite Engine: Sentinel-2 (Optical NDVI) for fair-weather precision + Sentinel-1 (SAR Backscatter) for all-weather monsoon verification. Pilot focuses on demonstrating SAR capability. |
+| **Core Compute** | AWS Service Component (Python) | Runs the "Traffic Light" algorithm and LSI threshold checks. Serverless architecture keeps costs within $2.50/village/month cap. |
+| **GenAI Intelligence** | Local Extraction Model | Intent Extraction: Takes farmer's translated text from Bhashini and converts it into structured JSON actions (e.g., `{ "action": "check_weather", "location": "pune" }`). |
+| **Satellite Analysis** | Local ML Inference Model | Hosts the Multi-Modal Satellite Engine: Sentinel-2 (Optical NDVI) for fair-weather precision + Sentinel-1 (SAR Backscatter) for all-weather monsoon verification. Pilot focuses on demonstrating SAR capability. |
 
 ### 2. The Context (India Stack Integrations)
 
@@ -39,8 +39,8 @@ This is the definitive, **lean** technology stack that marries AWS computational
 
 | Component | Service | Purpose |
 |-----------|---------|---------|
-| **Primary Database** | Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) | Single Source of Truth: Stores Farmer Profiles, VLE Trust Scores, Transaction Logs, and geospatial data. Scales to zero when not used (cost savings). |
-| **Evidence Vault** | Amazon S3 | Stores compressed photos, satellite tiles, and "Traffic Light" audit reports. Lifecycle policies move old data to Glacier. |
+| **Primary Database** | SQLite Database (PostgreSQL with PostGIS) | Single Source of Truth: Stores Farmer Profiles, VLE Trust Scores, Transaction Logs, and geospatial data. Scales to zero when not used (cost savings). |
+| **Evidence Vault** | Local Filesystem Storage | Stores compressed photos, satellite tiles, and "Traffic Light" audit reports. Lifecycle policies move old data to Glacier. |
 | **Government API Adapters** | Configurable Adapter Pattern | Mock Adapters for Pilot (PM-KISAN, e-NAM, PFMS) simulate government API responses for end-to-end workflow demonstration. Production-ready for hot-swap to live API Setu integration. |
 
 ### 4. The Edge (Mobile App)
@@ -60,11 +60,11 @@ This is the definitive, **lean** technology stack that marries AWS computational
    → If confidence < 80%: Bhashini (Cloud) translates to English
 
 2. REASONING:
-   English Text → Amazon Bedrock (Claude 3 Haiku)
+   English Text → Local Extraction Model
    → Extracts structured claim: "High Biomass on Plot #123"
 
 3. VERIFICATION (Traffic Light Protocol):
-   System queries SageMaker (Multi-Modal Satellite Engine)
+   System queries Local ML Model (Multi-Modal Satellite Engine)
    → IF cloud_cover < 30%: Use Sentinel-2 Optical (NDVI precision)
    → IF cloud_cover >= 30%: Use Sentinel-1 SAR (All-weather capability)
    → Calculates variance: |VLE_Claim - Satellite_Data| / Satellite_Data * 100
@@ -75,56 +75,56 @@ This is the definitive, **lean** technology stack that marries AWS computational
    IF variance > 30%: RED (Freeze VLE account)
 
 4. ACTION:
-   Financial: Trigger e-RUPI Mock Adapter → Log "Success" in Aurora DB
+   Financial: Trigger e-RUPI Mock Adapter → Log "Success" in SQLite Database DB
    Visual: Show "Green Polygon" on MapMyIndia layer in VLE app
-   Trust: Update VLE_Trust_Score in Aurora (+2 for GREEN, -15 for RED)
+   Trust: Update VLE_Trust_Score in SQLite Database (+2 for GREEN, -15 for RED)
 ```
 
 ### Why This Stack is Lean & Pilot-Ready
 
 **Removed from Original Design:**
-- ❌ Amazon QLDB (replaced by Aurora transaction logs)
-- ❌ DigiLocker (certificates stored in S3 for pilot)
+- ❌ Amazon QLDB (replaced by SQLite Database transaction logs)
+- ❌ DigiLocker (certificates stored in Local Filesystem for pilot)
 - ❌ API Setu PM-KISAN/e-NAM live integration (using Mock Adapters for pilot, production-ready for hot-swap)
 - ❌ Ayushman Bharat live integration (using Mock Adapter for pilot)
 - ❌ Amazon Forecast (replaced by Boolean thresholds)
 - ❌ Amazon Q (replaced by simple NDVI trend analysis)
 
 **Kept for Pilot:**
-- ✅ AWS Lambda (Python) - Core compute
-- ✅ Amazon Bedrock (Claude 3 Haiku) - Intent extraction
-- ✅ Amazon SageMaker - Multi-Modal Satellite Engine (Sentinel-2 + Sentinel-1 SAR)
+- ✅ AWS Service Component (Python) - Core compute
+- ✅ Local Extraction Model - Intent extraction
+- ✅ Local ML Inference Model - Multi-Modal Satellite Engine (Sentinel-2 + Sentinel-1 SAR)
 - ✅ Bhashini API - Dialect-heavy ASR
 - ✅ MapMyIndia - Cadastral survey numbers
 - ✅ e-RUPI Mock Adapter - Payment simulation (production-ready for NPCI integration)
 - ✅ PFMS Mock Adapter - DBT simulation (production-ready for API Setu integration)
 - ✅ PM-KISAN Mock Adapter - Farmer validation simulation (production-ready for API Setu integration)
-- ✅ Amazon Aurora Serverless v2 - PostgreSQL + PostGIS
-- ✅ Amazon S3 - Evidence storage
+- ✅ SQLite Database - PostgreSQL + PostGIS
+- ✅ Local Filesystem Storage - Evidence storage
 - ✅ Flutter - Mobile app framework
 - ✅ Vosk - On-device transcription
 
 ### Latency Optimization
 
-**The Constraint**: Calling Bhashini (External) + Bedrock (AWS) + MapMyIndia (External) can make the app slow.
+**The Constraint**: Calling Bhashini (External) + Local Model (AWS) + MapMyIndia (External) can make the app slow.
 
 **The Fix**: Frugal Edge Protocol
 - **VLE App**: Uses on-device Vosk for 90% of commands (offline, <500ms)
-- **Cloud**: Only calls Bhashini/Bedrock for complex queries or low-confidence transcriptions
-- **Async Processing**: Uses AWS SQS + Lambda to prevent mobile app from freezing
+- **Cloud**: Only calls Bhashini/Local Model for complex queries or low-confidence transcriptions
+- **Async Processing**: Uses AWS SQS + Service Component to prevent mobile app from freezing
 - **Caching**: MapMyIndia tiles cached for 7 days, Bhashini responses cached for common phrases
 
 ### Cost Breakdown (Per Village/Month)
 
 | Service | Cost | Notes |
 |---------|------|-------|
-| AWS Lambda | $0.30 | Serverless compute for all business logic |
-| Amazon Bedrock (Claude 3 Haiku) | $0.15 | Intent extraction (10% of requests, 90% handled by Vosk) |
-| Amazon SageMaker | $0.40 | Sentinel-1 SAR inference (once per 10 days) |
+| AWS Service Component | $0.30 | Serverless compute for all business logic |
+| Local Extraction Model | $0.15 | Intent extraction (10% of requests, 90% handled by Vosk) |
+| Local ML Inference Model | $0.40 | Sentinel-1 SAR inference (once per 10 days) |
 | Bhashini API | $0.05 | Fallback only (10% of transcriptions) |
 | MapMyIndia API | $0.10 | Tile caching reduces calls |
-| Amazon Aurora Serverless v2 | $0.50 | Scales to zero when idle |
-| Amazon S3 + Glacier | $0.20 | Lifecycle policies for old data |
+| SQLite Database | $0.50 | Scales to zero when idle |
+| Local Filesystem Storage + Glacier | $0.20 | Lifecycle policies for old data |
 | e-RUPI Mock Adapter | $0.00 | Free for pilot (mock) |
 | **Total** | **$1.70/village/month** | **Well within $2.50 budget** |
 
@@ -142,43 +142,43 @@ graph TB
     end
     
     subgraph "API Layer"
-        APIGateway[AWS API Gateway<br/>REST + WebSocket]
-        Cognito[AWS Cognito<br/>JWT Auth + RBAC]
+        APIGateway[FastAPI Application<br/>REST + WebSocket]
+        PyJWT Auth[PyJWT Authentication<br/>JWT Auth + RBAC]
         SyncMeta[/sync/metadata<br/>Instant, Light]
         SyncMedia[/sync/media<br/>WiFi Only, Heavy]
     end
     
     subgraph "Orchestration Layer"
-        BedrockAgent[Amazon Bedrock<br/>Claude 3 Haiku Intent Extraction]
-        EventBridge[Amazon EventBridge<br/>Event Router]
+        Local ModelAgent[Amazon Local Model<br/>Claude 3 Haiku Intent Extraction]
+        In-Process EventBus[In-Process EventBus<br/>Event Router]
     end
 
     subgraph "Service Layer - Carbon-Kosh (70%)"
-        VoiceLambda[Voice Processing Lambda<br/>Hybrid Edge/Cloud]
-        SatelliteLambda[Satellite Acquisition Lambda<br/>Sentinel-1 SAR Downloader]
-        VerificationLambda[Verification Lambda<br/>SageMaker Biomass Analysis]
-        TrafficLightLambda[Traffic Light Verifier<br/>VLE Fraud Detection]
-        EscrowLambda[Escrow & Settlement Engine<br/>e-RUPI Mock Adapter]
+        VoiceService Component[Voice Processing Service Component<br/>Hybrid Edge/Cloud]
+        SatelliteService Component[Satellite Acquisition Service Component<br/>Sentinel-1 SAR Downloader]
+        VerificationService Component[Verification Service Component<br/>Local ML Model Biomass Analysis]
+        TrafficLightService Component[Traffic Light Verifier<br/>VLE Fraud Detection]
+        EscrowService Component[Escrow & Settlement Engine<br/>e-RUPI Mock Adapter]
     end
     
     subgraph "Service Layer - Gram-Twin (15%)"
-        TwinLambda[Digital Twin Lambda<br/>3D Map Aggregator]
-        HotspotLambda[Hotspot Detection Lambda<br/>NDVI Trend Analysis]
+        TwinService Component[Digital Twin Service Component<br/>3D Map Aggregator]
+        HotspotService Component[Hotspot Detection Service Component<br/>NDVI Trend Analysis]
     end
     
     subgraph "Service Layer - Migration-Shield (15%)"
-        ThresholdLambda[Threshold Monitor Lambda<br/>Boolean Crisis Detection]
-        AlertLambda[Alert Notification Lambda<br/>SNS/SES]
+        ThresholdService Component[Threshold Monitor Service Component<br/>Boolean Crisis Detection]
+        AlertService Component[Alert Notification Service Component<br/>SNS/SES]
     end
     
     subgraph "Data Layer"
-        S3[AWS S3<br/>Satellite Imagery + Evidence Vault]
-        Aurora[(Amazon Aurora Serverless v2<br/>PostgreSQL + PostGIS)]
-        SageMaker[Amazon SageMaker<br/>Sentinel-1 SAR Model]
+        Local Filesystem[Local Filesystem Storage<br/>Satellite Imagery + Evidence Vault]
+        SQLite Database[(SQLite Database<br/>PostgreSQL + PostGIS)]
+        Local ML Model[Local ML Inference Model<br/>Sentinel-1 SAR Model]
     end
     
     subgraph "External Integrations"
-        Bhashini[Bhashini API<br/>Cloud Fallback Only]
+        Bhashini[Bhashini API<br/>Bhashini Cloud Fallback Only]
         Sentinel[Sentinel-1 SAR<br/>Copernicus Hub]
         MapMyIndia[MapMyIndia Mappls<br/>Cadastral Survey Numbers]
         eRUPI[e-RUPI Mock Adapter<br/>NPCI Voucher Simulation]
@@ -189,57 +189,57 @@ graph TB
     SyncMeta --> APIGateway
     SyncMedia --> APIGateway
     WebDash --> APIGateway
-    APIGateway --> Cognito
-    Cognito --> BedrockAgent
-    BedrockAgent --> EventBridge
+    APIGateway --> PyJWT Auth
+    PyJWT Auth --> Local ModelAgent
+    Local ModelAgent --> In-Process EventBus
     
-    EventBridge --> VoiceLambda
-    EventBridge --> SatelliteLambda
-    EventBridge --> VerificationLambda
-    EventBridge --> TrafficLightLambda
-    EventBridge --> EscrowLambda
-    EventBridge --> TwinLambda
-    EventBridge --> HotspotLambda
-    EventBridge --> ThresholdLambda
+    In-Process EventBus --> VoiceService Component
+    In-Process EventBus --> SatelliteService Component
+    In-Process EventBus --> VerificationService Component
+    In-Process EventBus --> TrafficLightService Component
+    In-Process EventBus --> EscrowService Component
+    In-Process EventBus --> TwinService Component
+    In-Process EventBus --> HotspotService Component
+    In-Process EventBus --> ThresholdService Component
     
-    VoiceLambda -.->|Fallback Only| Bhashini
-    SatelliteLambda --> Sentinel
-    SatelliteLambda --> S3
-    VerificationLambda --> S3
-    VerificationLambda --> SageMaker
-    VerificationLambda --> Aurora
-    TrafficLightLambda --> Aurora
-    TrafficLightLambda --> SageMaker
-    EscrowLambda --> eRUPI
-    EscrowLambda --> Aurora
+    VoiceService Component -.->|Fallback Only| Bhashini
+    SatelliteService Component --> Sentinel
+    SatelliteService Component --> Local Filesystem
+    VerificationService Component --> Local Filesystem
+    VerificationService Component --> Local ML Model
+    VerificationService Component --> SQLite Database
+    TrafficLightService Component --> SQLite Database
+    TrafficLightService Component --> Local ML Model
+    EscrowService Component --> eRUPI
+    EscrowService Component --> SQLite Database
     
-    TwinLambda --> Aurora
-    TwinLambda --> MapMyIndia
-    HotspotLambda --> Aurora
+    TwinService Component --> SQLite Database
+    TwinService Component --> MapMyIndia
+    HotspotService Component --> SQLite Database
     
-    ThresholdLambda --> Aurora
-    AlertLambda --> WebDash
+    ThresholdService Component --> SQLite Database
+    AlertService Component --> WebDash
 ```
 
 ### Event-Driven Architecture
 
-The platform uses Amazon EventBridge as the central event bus, enabling loose coupling between services:
+The platform uses In-Process EventBus as the central event bus, enabling loose coupling between services:
 
-1. **Voice Request Event**: Triggered when farmer submits voice input → Routes to VoiceLambda
-2. **Farm Registration Event**: Triggered when farm plot is created → Routes to SatelliteLambda to subscribe to imagery
-3. **Satellite Data Available Event**: Triggered when new Sentinel-1 SAR imagery arrives → Routes to VerificationLambda
-4. **Verification Complete Event**: Triggered when biomass analysis finishes → Routes to TrafficLightLambda for fraud detection
-5. **Traffic Light Green Event**: Triggered when variance < 10% → Routes to EscrowLambda for payment processing
-6. **Traffic Light Red Event**: Triggered when variance > 30% → Routes to AlertLambda for VLE account freeze
-7. **Threshold Breach Event**: Triggered when any critical vital sign fails → Routes to AlertLambda for district officials
+1. **Voice Request Event**: Triggered when farmer submits voice input → Routes to VoiceService Component
+2. **Farm Registration Event**: Triggered when farm plot is created → Routes to SatelliteService Component to subscribe to imagery
+3. **Satellite Data Available Event**: Triggered when new Sentinel-1 SAR imagery arrives → Routes to VerificationService Component
+4. **Verification Complete Event**: Triggered when biomass analysis finishes → Routes to TrafficLightService Component for fraud detection
+5. **Traffic Light Green Event**: Triggered when variance < 10% → Routes to EscrowService Component for payment processing
+6. **Traffic Light Red Event**: Triggered when variance > 30% → Routes to AlertService Component for VLE account freeze
+7. **Threshold Breach Event**: Triggered when any critical vital sign fails → Routes to AlertService Component for district officials
 8. **Payment Approved Event**: Triggered when escrow releases funds → Routes to notification services
 
-This event-driven design minimizes Lambda cold starts by using EventBridge's built-in retry and DLQ capabilities.
+This event-driven design minimizes Service Component cold starts by using In-Process EventBus's built-in retry and DLQ capabilities.
 
 
 ## Components and Interfaces
 
-### 1. Voice Processing Component (VoiceLambda) - UPDATED FOR PILOT
+### 1. Voice Processing Component (VoiceService Component) - UPDATED FOR PILOT
 
 **Responsibility**: Transcribe farmer voice input using on-device Vosk-Lite, with cloud fallback to Bhashini only when needed.
 
@@ -273,18 +273,18 @@ interface VoiceResponse {
 **Dependencies**:
 - Vosk-Lite (on-device, primary)
 - Bhashini API (cloud fallback, only when Vosk confidence < 80%)
-- Amazon Bedrock Agent for intent extraction
-- EventBridge for publishing farm registration events
+- Amazon Local Model Agent for intent extraction
+- In-Process EventBus for publishing farm registration events
 
 **Cost Optimization**:
 - 90% of transcriptions happen on-device (zero API cost)
 - Bhashini API only called for low-confidence cases
-- Use Lambda ARM64 architecture for 20% cost reduction
+- Use Service Component ARM64 architecture for 20% cost reduction
 - Set memory to 512MB (optimal for text processing, not audio)
 
-### 2. Satellite Acquisition Component (SatelliteLambda)
+### 2. Satellite Acquisition Component (SatelliteService Component)
 
-**Responsibility**: Download multi-modal satellite imagery (Sentinel-2 Optical + Sentinel-1 SAR) for registered farm plots and store in S3. Pilot focuses on demonstrating SAR capability.
+**Responsibility**: Download multi-modal satellite imagery (Sentinel-2 Optical + Sentinel-1 SAR) for registered farm plots and store in Local Filesystem. Pilot focuses on demonstrating SAR capability.
 
 **Interface**:
 ```typescript
@@ -306,22 +306,22 @@ interface SatelliteResponse {
   acquisitionDates: string[];
   cloudCoverPercentages: number[]; // Only for optical
   satelliteSource: 'SENTINEL_2_OPTICAL' | 'SENTINEL_1_SAR';
-  s3Keys: string[];           // S3 object keys for downloaded tiles
+  s3Keys: string[];           // Local Filesystem object keys for downloaded tiles
   qualityScore: number;       // 0-100, based on cloud cover or signal quality
 }
 ```
 
 **Dependencies**:
 - Sentinel Hub API or Copernicus Open Access Hub (Sentinel-2 Optical + Sentinel-1 SAR data)
-- AWS S3 for tile storage
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for spatial queries
+- Local Filesystem Storage for tile storage
+- SQLite Database (PostgreSQL with PostGIS) for spatial queries
 
 **Cost Optimization**:
 - Download Sentinel-2 (B4, B8 bands) for fair weather, Sentinel-1 (VV, VH polarization) for monsoon
-- Use S3 Intelligent-Tiering for automatic cost optimization
+- Use Local Filesystem Intelligent-Tiering for automatic cost optimization
 - Implement tile deduplication to avoid re-downloading existing data
 
-### 3. Verification Component (VerificationLambda)
+### 3. Verification Component (VerificationService Component)
 
 **Responsibility**: Calculate biomass using Multi-Modal Satellite Engine (Sentinel-2 NDVI for fair weather + Sentinel-1 SAR backscatter for monsoon) and quantify carbon sequestration. Pilot demonstrates SAR capability.
 
@@ -347,9 +347,9 @@ interface VerificationResponse {
 ```
 
 **Dependencies**:
-- Amazon SageMaker endpoint hosting Multi-Modal Satellite Engine (Sentinel-2 NDVI + Sentinel-1 SAR biomass models)
-- AWS S3 for reading satellite tiles
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for storing verification results
+- Local ML Inference Model endpoint hosting Multi-Modal Satellite Engine (Sentinel-2 NDVI + Sentinel-1 SAR biomass models)
+- Local Filesystem Storage for reading satellite tiles
+- SQLite Database (PostgreSQL with PostGIS) for storing verification results
 
 **Algorithm**:
 ```
@@ -371,15 +371,15 @@ biomass_factor varies by crop type:
 ```
 
 **Cost Optimization**:
-- Use SageMaker Serverless Inference (pay per invocation)
+- Use Local ML Model Serverless Inference (pay per invocation)
 - Batch multiple farm plots in single inference call
 - Cache biomass results for 30 days to avoid recomputation
 - Prioritize Sentinel-1 SAR for pilot demonstration (all-weather USP)
 
 
-### 4. Service Payment Certificate Generation Component (Integrated into EscrowLambda)
+### 4. Service Payment Certificate Generation Component (Integrated into EscrowService Component)
 
-**Note:** This component has been integrated into the Escrow & Settlement Engine (EscrowLambda) in the pilot-ready architecture.
+**Note:** This component has been integrated into the Escrow & Settlement Engine (EscrowService Component) in the pilot-ready architecture.
 
 **Responsibility**: Generate GCP-compliant service payment certificates as PDF documents after Traffic Light verification.
 
@@ -410,10 +410,10 @@ interface CertificateResponse {
 ```
 
 **Dependencies**:
-- Amazon Bedrock (Claude) for generating certificate text
+- Amazon Local Model (Claude) for generating certificate text
 - PDF generation library (e.g., PDFKit or Puppeteer)
-- AWS S3 for PDF storage with encryption
-- EscrowLambda for payment processing
+- Local Filesystem Storage for PDF storage with encryption
+- EscrowService Component for payment processing
 
 **Certificate Template**:
 - Header: "Green Credit Programme (GCP) Service Payment Certificate"
@@ -425,7 +425,7 @@ interface CertificateResponse {
 - QR code: Links to audit trail verification
 - Digital signature: AWS KMS-signed hash
 
-### 5. Digital Twin Component (TwinLambda)
+### 5. Digital Twin Component (TwinService Component)
 
 **Responsibility**: Aggregate village data and generate 3D map visualization payload.
 
@@ -460,7 +460,7 @@ interface DigitalTwinResponse {
 ```
 
 **Dependencies**:
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for spatial aggregation queries
+- SQLite Database (PostgreSQL with PostGIS) for spatial aggregation queries
 - MapMyIndia API for infrastructure data
 - Simple NDVI trend analysis (no ML model needed)
 
@@ -469,7 +469,7 @@ interface DigitalTwinResponse {
 - Use PostGIS spatial indexes for fast queries
 - Limit MapMyIndia API calls to once per week per village
 
-### 6. Hotspot Detection Component (HotspotLambda)
+### 6. Hotspot Detection Component (HotspotService Component)
 
 **Responsibility**: Identify ecological degradation areas using simple NDVI trend analysis.
 
@@ -495,15 +495,15 @@ interface HotspotResponse {
 ```
 
 **Algorithm**:
-1. Query Amazon Aurora (PostGIS) for all farm plots in village with NDVI history
+1. Query SQLite Database (PostGIS) for all farm plots in village with NDVI history
 2. Calculate NDVI slope (rate of change) for each plot
 3. Identify plots with negative slope < -0.05 per month
 4. Cluster adjacent declining plots into hotspots
 5. Use rule-based logic to recommend interventions based on decline patterns
 
-### 7. DEPRECATED - Risk Calculation Component (Replaced by ThresholdLambda)
+### 7. DEPRECATED - Risk Calculation Component (Replaced by ThresholdService Component)
 
-**Note:** This component has been replaced by the Threshold Monitor Component (ThresholdLambda) in the pilot-ready architecture. The weighted average approach has been replaced with Boolean threshold logic for transparent crisis detection.
+**Note:** This component has been replaced by the Threshold Monitor Component (ThresholdService Component) in the pilot-ready architecture. The weighted average approach has been replaced with Boolean threshold logic for transparent crisis detection.
 
 **Original Responsibility**: Calculate migration risk score by correlating income and climate data.
 
@@ -517,7 +517,7 @@ interface HotspotResponse {
 
 **Replacement**: See Component 12 (Threshold Monitor Component) for the pilot-ready implementation using rule-based threshold logic.
 
-### 9. Alert Notification Component (AlertLambda)
+### 9. Alert Notification Component (AlertService Component)
 
 **Responsibility**: Send migration risk alerts to district officials.
 
@@ -554,7 +554,7 @@ interface AlertResponse {
 
 ## Pilot-Ready Components (Gap Closure)
 
-### 10. Traffic Light Verifier Component (TrafficLightLambda)
+### 10. Traffic Light Verifier Component (TrafficLightService Component)
 
 **Responsibility**: Detect VLE fraud by comparing VLE-reported data against satellite verification in real-time.
 
@@ -567,7 +567,7 @@ interface TrafficLightRequest {
     gpsPolygon: GeoJSON.Polygon;
     cropType: string;
     estimatedBiomass: number;  // VLE's visual assessment
-    photos: string[];          // S3 keys for ground photos
+    photos: string[];          // Local Filesystem keys for ground photos
   };
   satelliteData: {
     ndviCurrent: number;
@@ -620,16 +620,16 @@ function updateTrustScore(currentScore: number, status: TrafficLightStatus): num
 ```
 
 **Dependencies**:
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for VLE trust score storage
-- SageMaker for satellite biomass estimation
-- EventBridge for triggering audit workflows
+- SQLite Database (PostgreSQL with PostGIS) for VLE trust score storage
+- Local ML Model for satellite biomass estimation
+- In-Process EventBus for triggering audit workflows
 
 **Cost Optimization**:
 - Run verification only after satellite data is available (not real-time)
-- Batch multiple verifications in single SageMaker call
+- Batch multiple verifications in single Local ML Model call
 - Cache satellite data for 30 days to avoid recomputation
 
-### 11. Escrow & Settlement Engine (EscrowLambda)
+### 11. Escrow & Settlement Engine (EscrowService Component)
 
 **Responsibility**: Generate sovereign payment vouchers (e-RUPI or PFMS) instead of routing to commodity markets. Uses Configurable Adapter Pattern for pilot-to-production transition.
 
@@ -817,15 +817,15 @@ API_SETU_KEY=<actual_key>
 **Dependencies**:
 - API Setu for NPCI e-RUPI integration (production)
 - PFMS API for government DBT (production)
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for audit trail storage
-- EventBridge for payment confirmation events
+- SQLite Database (PostgreSQL with PostGIS) for audit trail storage
+- In-Process EventBus for payment confirmation events
 
 **Cost Optimization**:
 - Batch multiple payments in single PFMS XML file
 - Cache payment status for 1 hour to reduce API calls
 - Use SQS for payment queue management
 
-### 12. Threshold Monitor Component (ThresholdLambda)
+### 12. Threshold Monitor Component (ThresholdService Component)
 
 **Responsibility**: Implement Boolean threshold logic to detect acute crises instead of weighted averages.
 
@@ -928,8 +928,8 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
 ```
 
 **Dependencies**:
-- Amazon Aurora Serverless v2 (PostgreSQL with PostGIS) for village vital signs data
-- EventBridge for triggering alerts
+- SQLite Database (PostgreSQL with PostGIS) for village vital signs data
+- In-Process EventBus for triggering alerts
 - No ML models (transparent, rule-based logic)
 
 **Cost Optimization**:
@@ -1159,7 +1159,7 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
 
 ## Data Flow
 
-### The Data Cascade: Satellite → S3 → SageMaker → Bedrock → PostGIS → Frontend
+### The Data Cascade: Satellite → Local Filesystem → Local ML Model → Local Model → PostGIS → Frontend
 
 #### Flow 1: Carbon Credit Verification with Traffic Light Protocol (Primary Flow - 70% of System)
 
@@ -1168,37 +1168,37 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
    ↓
 2. Mobile App transcribes on-device using Vosk-Lite
    ↓
-3. Mobile App → /sync/metadata → API Gateway → VoiceLambda (text only, no audio)
+3. Mobile App → /sync/metadata → FastAPI App → VoiceService Component (text only, no audio)
    ↓
-4. Bedrock Agent (Intent: "REQUEST_VERIFICATION")
+4. Local Model Agent (Intent: "REQUEST_VERIFICATION")
    ↓
-5. EventBridge publishes "VerificationRequested" event
+5. In-Process EventBus publishes "VerificationRequested" event
    ↓
-6. SatelliteLambda triggered
+6. SatelliteService Component triggered
    ↓
 7. Query Copernicus Hub for latest imagery
    → IF cloud_cover < 30%: Download Sentinel-2 Optical (NDVI precision)
    → IF cloud_cover >= 30%: Download Sentinel-1 SAR (All-weather capability)
    ↓
-8. Download tiles → Store in S3 (s3://bharat-setu-satellite/farm-{id}/tile-{date}.tif)
+8. Download tiles → Store in Local Filesystem (s3://bharat-setu-satellite/farm-{id}/tile-{date}.tif)
    ↓
-9. EventBridge publishes "SatelliteDataReady" event
+9. In-Process EventBus publishes "SatelliteDataReady" event
    ↓
-10. VerificationLambda triggered
+10. VerificationService Component triggered
     ↓
-11. Read tiles from S3 → Invoke SageMaker Multi-Modal Satellite Engine
+11. Read tiles from Local Filesystem → Invoke Local ML Model Multi-Modal Satellite Engine
     → IF Sentinel-2: Calculate NDVI → Convert to biomass
     → IF Sentinel-1 SAR: Calculate backscatter → Convert to biomass
     ↓
-12. SageMaker returns biomass scores
+12. Local ML Model returns biomass scores
     ↓
 13. Calculate carbon sequestration
     ↓
-14. Store results in Amazon Aurora (farm_verifications table)
+14. Store results in SQLite Database (farm_verifications table)
     ↓
-15. EventBridge publishes "VerificationComplete" event
+15. In-Process EventBus publishes "VerificationComplete" event
     ↓
-16. TrafficLightLambda triggered (NEW - Fraud Detection)
+16. TrafficLightService Component triggered (NEW - Fraud Detection)
     ↓
 17. Compare VLE_GPS_Polygon vs. Sentinel_Biomass_Signature
     ↓
@@ -1208,16 +1208,16 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
     IF variance 10-30%: YELLOW → Flag for manual call
     IF variance > 30%: RED → Freeze VLE account, forfeit commission
     ↓
-20. IF GREEN: EventBridge publishes "PaymentApproved" event
+20. IF GREEN: In-Process EventBus publishes "PaymentApproved" event
     ↓
-21. EscrowLambda triggered (NEW - Sovereign Payment Rails)
+21. EscrowService Component triggered (NEW - Sovereign Payment Rails)
     ↓
 22. Determine payment source (CSR or Government Grant)
     ↓
 23. IF CSR: Generate e-RUPI voucher (Purpose Code: AGRI_INPUT)
     IF Govt: Generate PFMS-DBT batch XML
     ↓
-24. Store payment record in Amazon Aurora (audit trail)
+24. Store payment record in SQLite Database (audit trail)
     ↓
 25. Send notification to Mobile App via WebSocket
     ↓
@@ -1231,15 +1231,15 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
 ```
 1. Sarpanch opens Gram-Twin dashboard
    ↓
-2. Web Dashboard → API Gateway → TwinLambda
+2. Web Dashboard → FastAPI App → TwinService Component
    ↓
-3. Amazon Aurora (PostGIS) spatial query: SELECT * FROM farm_plots WHERE village_id = ?
+3. SQLite Database (PostGIS) spatial query: SELECT * FROM farm_plots WHERE village_id = ?
    ↓
 4. Aggregate biomass data for all plots
    ↓
 5. MapMyIndia API call for infrastructure (roads, water bodies)
    ↓
-6. HotspotLambda triggered for degradation analysis
+6. HotspotService Component triggered for degradation analysis
    ↓
 7. Simple NDVI trend analysis → Identifies declining areas
    ↓
@@ -1253,11 +1253,11 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
 #### Flow 3: Crisis Detection with Boolean Thresholds (15% of System)
 
 ```
-1. Scheduled EventBridge rule (runs weekly)
+1. Scheduled In-Process EventBus rule (runs weekly)
    ↓
-2. ThresholdLambda triggered for all village clusters
+2. ThresholdService Component triggered for all village clusters
    ↓
-3. Amazon Aurora (PostGIS) query: Fetch vital signs (rainfall, water, health exp, income, NDVI, debt)
+3. SQLite Database (PostGIS) query: Fetch vital signs (rainfall, water, health exp, income, NDVI, debt)
    ↓
 4. Check each threshold independently (Boolean logic, not weighted average):
    - IF rainfall < 50% → TRIGGER RAINFALL_FAILURE alert
@@ -1268,9 +1268,9 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
    ↓
 5. IF any threshold breached:
    ↓
-6. Store crisis alert in Amazon Aurora (crisis_alerts table) with specific failure reasons
+6. Store crisis alert in SQLite Database (crisis_alerts table) with specific failure reasons
    ↓
-7. AlertLambda triggered
+7. AlertService Component triggered
    ↓
 8. SNS sends SMS to district officials with specific crisis type
    ↓
@@ -1300,13 +1300,13 @@ function checkCriticalThresholds(villageData: VillageData): ThresholdResponse {
    ↓
 7. App uploads ONLY text JSON via /sync/metadata (Instant, <5KB)
    ↓
-8. VoiceLambda processes text immediately
+8. VoiceService Component processes text immediately
    ↓
 9. IF WiFi detected:
    ↓
 10. App uploads queued photos/documents via /sync/media (Heavy, queued)
     ↓
-11. S3 stores media files
+11. Local Filesystem stores media files
     ↓
 12. IF no internet:
     ↓
@@ -1332,17 +1332,17 @@ Battery Life Optimization:
 To maintain the $2.50/month per village cluster budget:
 
 1. **Satellite Data**: Download only once per 10 days (Sentinel-2/Sentinel-1 revisit cycle). Pilot prioritizes Sentinel-1 SAR for all-weather demonstration.
-2. **Caching**: Cache biomass results for 30 days in Amazon Aurora
-3. **Batching**: Batch multiple farm plots in single SageMaker inference call
-4. **Lifecycle**: Move S3 satellite tiles to Glacier after 90 days
-5. **Connection Pooling**: Reuse Aurora connections across Lambda invocations
-6. **Serverless Inference**: Use SageMaker Serverless (pay per invocation, not per hour)
-7. **Lambda ARM64**: 20% cost reduction vs. x86
-8. **Reserved Capacity**: Use Aurora Serverless v2 with auto-scaling (scales to zero when idle)
+2. **Caching**: Cache biomass results for 30 days in SQLite Database
+3. **Batching**: Batch multiple farm plots in single Local ML Model inference call
+4. **Lifecycle**: Move Local Filesystem satellite tiles to Glacier after 90 days
+5. **Connection Pooling**: Reuse SQLite Database connections across Service Component invocations
+6. **Serverless Inference**: Use Local ML Model Serverless (pay per invocation, not per hour)
+7. **Service Component ARM64**: 20% cost reduction vs. x86
+8. **Reserved Capacity**: Use SQLite Database with auto-scaling (scales to zero when idle)
 9. **Edge Transcription**: 90% of voice transcriptions happen on-device (zero Bhashini API cost)
 10. **Text-Only Sync**: Upload transcribed text (5KB) instead of raw audio (500KB) - 99% bandwidth savings
 11. **WiFi-Only Media**: Queue photos/documents for WiFi sync to avoid cellular data charges
-12. **Boolean Thresholds**: Replace ML-based risk scoring with simple SQL queries (zero Bedrock/Forecast cost for crisis detection)
+12. **Boolean Thresholds**: Replace ML-based risk scoring with simple SQL queries (zero Local Model/Forecast cost for crisis detection)
 13. **Payment Batching**: Batch multiple e-RUPI vouchers or PFMS transfers to reduce API Setu transaction fees
 14. **Mock Adapters**: Zero API costs during pilot phase (e-RUPI, PFMS, PM-KISAN, e-NAM all simulated)
 
@@ -1359,7 +1359,7 @@ A property is a characteristic or behavior that should hold true across all vali
 
 ### Property 2: Farm Data Extraction Completeness
 
-*For any* transcribed text containing farm registration information, the Bedrock_Agent should extract all required fields (location, size, crop type) or generate clarifying questions in the correct language when information is incomplete.
+*For any* transcribed text containing farm registration information, the Local Model_Agent should extract all required fields (location, size, crop type) or generate clarifying questions in the correct language when information is incomplete.
 
 **Validates: Requirements 1.2, 1.3**
 
@@ -1477,9 +1477,9 @@ A property is a characteristic or behavior that should hold true across all vali
 
 **Validates: Requirements 8.4**
 
-### Property 22: Lambda Memory Limit Compliance
+### Property 22: Service Component Memory Limit Compliance
 
-*For any* Lambda function execution, the function should complete within its allocated memory limit without exceeding it.
+*For any* Service Component function execution, the function should complete within its allocated memory limit without exceeding it.
 
 **Validates: Requirements 9.1**
 
@@ -1515,7 +1515,7 @@ A property is a characteristic or behavior that should hold true across all vali
 
 ### Property 28: JWT Token Security Properties
 
-*For any* issued JWT token, it should be signed with RS256 algorithm, have an expiration time of 1 hour for access tokens, and invalid tokens should be rejected by API Gateway.
+*For any* issued JWT token, it should be signed with RS256 algorithm, have an expiration time of 1 hour for access tokens, and invalid tokens should be rejected by FastAPI App.
 
 **Validates: Requirements 12.2, 12.5**
 
@@ -1527,7 +1527,7 @@ A property is a characteristic or behavior that should hold true across all vali
 
 ### Property 30: Satellite Imagery Metadata Completeness
 
-*For any* downloaded satellite tile (Sentinel-2 or Sentinel-1 SAR), it should be stored in S3 with complete metadata including acquisition date, satellite source, and quality metrics (cloud cover for optical, signal quality for SAR).
+*For any* downloaded satellite tile (Sentinel-2 or Sentinel-1 SAR), it should be stored in Local Filesystem with complete metadata including acquisition date, satellite source, and quality metrics (cloud cover for optical, signal quality for SAR).
 
 **Validates: Requirements 13.3**
 
@@ -1725,43 +1725,43 @@ A property is a characteristic or behavior that should hold true across all vali
 - Satellite imagery unavailable for requested date range
 - High cloud cover (>30%) preventing Sentinel-2 optical analysis
 - Low signal quality for Sentinel-1 SAR
-- S3 download failures or corrupted tiles
+- Local Filesystem download failures or corrupted tiles
 
 **Handling**:
 - Automatically switch from Sentinel-2 to Sentinel-1 SAR if cloud cover > 30%
 - Schedule automatic retry in 7 days for next satellite pass
 - Notify farmer via voice: "Satellite images are not clear. We'll check again next week."
 - Mark verification as "PENDING_RETRY" in database
-- Use CloudWatch alarms to detect S3 download failures
+- Use CloudWatch alarms to detect Local Filesystem download failures
 
 **Recovery**:
-- Implement S3 multipart download with retry for large tiles
+- Implement Local Filesystem multipart download with retry for large tiles
 - Multi-modal approach ensures 365-day coverage (optical for fair weather, SAR for monsoon)
 - Fall back to alternative SAR sources (ALOS-2) if both Sentinel satellites unavailable for 30 days
 
 #### 3. Biomass Calculation Errors
 
 **Scenarios**:
-- SageMaker endpoint unavailable or throttled
+- Local ML Model endpoint unavailable or throttled
 - Invalid biomass values (outside 0 to 1 range)
 - Insufficient historical baseline data
 
 **Handling**:
-- Use SageMaker endpoint auto-scaling to handle traffic spikes
+- Use Local ML Model endpoint auto-scaling to handle traffic spikes
 - Validate biomass values and reject outliers with error log
 - Require minimum 3 months of baseline data before verification
 - Return error to farmer: "We need more time to establish your baseline. Please try again in [X] weeks."
 
 **Recovery**:
 - Cache biomass calculations for 30 days to reduce recomputation
-- Implement circuit breaker pattern for SageMaker calls (open after 5 consecutive failures)
+- Implement circuit breaker pattern for Local ML Model calls (open after 5 consecutive failures)
 
 #### 4. Certificate Generation Errors
 
 **Scenarios**:
-- Bedrock API rate limits or service unavailable
+- Local Model API rate limits or service unavailable
 - PDF generation library crashes
-- S3 upload failures
+- Local Filesystem upload failures
 
 **Handling**:
 - Queue certificate generation requests in SQS with visibility timeout
@@ -1793,19 +1793,19 @@ A property is a characteristic or behavior that should hold true across all vali
 #### 6. Database Errors
 
 **Scenarios**:
-- Amazon Aurora connection pool exhausted
+- SQLite Database connection pool exhausted
 - Query timeout (>30 seconds)
 - Deadlocks or constraint violations
 
 **Handling**:
-- Implement connection pooling with max 20 connections per Lambda
+- Implement connection pooling with max 20 connections per Service Component
 - Set query timeout to 30 seconds and return error if exceeded
 - Use optimistic locking for concurrent updates
 - Retry transient errors (connection failures) up to 3 times
 
 **Recovery**:
-- Scale Aurora Serverless v2 ACUs if connection pool consistently exhausted
-- Add Aurora read replicas for read-heavy queries (dashboard analytics)
+- Scale SQLite Database ACUs if connection pool consistently exhausted
+- Add SQLite Database read replicas for read-heavy queries (dashboard analytics)
 - Implement database query caching using ElastiCache
 
 #### 7. Offline Sync Errors
@@ -1846,10 +1846,10 @@ A property is a characteristic or behavior that should hold true across all vali
 ### Error Monitoring and Alerting
 
 **CloudWatch Alarms**:
-- Lambda error rate > 5% in 5 minutes → Page on-call engineer
-- SageMaker endpoint latency > 10 seconds → Scale endpoint
-- Aurora CPU > 80% for 10 minutes → Scale ACUs
-- S3 download failures > 10 in 1 hour → Check Copernicus Hub status (Sentinel-2 + Sentinel-1)
+- Service Component error rate > 5% in 5 minutes → Page on-call engineer
+- Local ML Model endpoint latency > 10 seconds → Scale endpoint
+- SQLite Database CPU > 80% for 10 minutes → Scale ACUs
+- Local Filesystem download failures > 10 in 1 hour → Check Copernicus Hub status (Sentinel-2 + Sentinel-1)
 - Cost per village cluster > $2.50 → Alert platform operator
 
 **Error Dashboards**:
@@ -1863,8 +1863,8 @@ A property is a characteristic or behavior that should hold true across all vali
 When critical services are unavailable, the platform should degrade gracefully:
 
 1. **Bhashini API down**: Fall back to on-device Vosk-Lite transcription (already primary method)
-2. **SageMaker unavailable**: Queue verifications and process when service recovers
-3. **Bedrock unavailable**: Use template-based certificate generation
+2. **Local ML Model unavailable**: Queue verifications and process when service recovers
+3. **Local Model unavailable**: Use template-based certificate generation
 4. **MapMyIndia API down**: Display digital twin without infrastructure layer
 5. **API Setu unavailable**: Queue payment vouchers and process when service recovers
 6. **Threshold calculation errors**: Use cached vital signs data and alert administrators
@@ -1884,8 +1884,8 @@ Both testing approaches are complementary and necessary. Unit tests catch concre
 ### Property-Based Testing Framework
 
 **Framework Selection**: 
-- **Python Lambda functions**: Use `hypothesis` library
-- **TypeScript/Node.js Lambda functions**: Use `fast-check` library
+- **Python Service Component functions**: Use `hypothesis` library
+- **TypeScript/Node.js Service Component functions**: Use `fast-check` library
 - **Flutter mobile app**: Use `fast-check` with Jest or Dart's built-in test framework
 
 **Configuration**:
@@ -1967,7 +1967,7 @@ describe('Farm Plot Storage', () => {
 2. **Satellite Acquisition**:
    - Test Multi-Modal Satellite API integration with mock imagery (Sentinel-2 + Sentinel-1)
    - Test cloud cover filtering and automatic SAR fallback
-   - Test S3 storage with encryption verification
+   - Test Local Filesystem storage with encryption verification
    - Test retry logic for failed downloads
 
 3. **Biomass Calculation**:
@@ -1980,7 +1980,7 @@ describe('Farm Plot Storage', () => {
 4. **Service Payment Certificate Generation**:
    - Test GCP-compliant certificate format
    - Test PDF generation with all required fields (including VLE and Traffic Light data)
-   - Test S3 pre-signed URL generation
+   - Test Local Filesystem pre-signed URL generation
    - Test certificate expiration handling
    - Test integration with Escrow & Settlement Engine
 
@@ -2061,8 +2061,8 @@ describe('Farm Plot Storage', () => {
 
 **Load Testing**:
 - Simulate 1000 concurrent farmers using the voice interface
-- Measure Lambda cold start times and optimize
-- Test SageMaker endpoint auto-scaling under load
+- Measure Service Component cold start times and optimize
+- Test Local ML Model endpoint auto-scaling under load
 - Verify RDS connection pool handles concurrent queries
 
 **Latency Testing**:
@@ -2075,7 +2075,7 @@ describe('Farm Plot Storage', () => {
 - Monitor actual AWS costs per village cluster
 - Verify costs stay under $2.50/month target
 - Identify cost optimization opportunities
-- Test lifecycle policies for S3 archival
+- Test lifecycle policies for Local Filesystem archival
 
 ### Security Testing
 
@@ -2083,11 +2083,11 @@ describe('Farm Plot Storage', () => {
 - Test JWT token tampering and replay attacks
 - Test SQL injection in PostGIS queries
 - Test unauthorized API access attempts
-- Test S3 bucket permissions and encryption
+- Test Local Filesystem bucket permissions and encryption
 
 **Compliance Testing**:
 - Verify TLS 1.3 enforcement for all API calls
-- Verify S3 server-side encryption with KMS
+- Verify Local Filesystem server-side encryption with KMS
 - Verify database SSL/TLS connections
 - Verify audit logging for unauthorized access
 
@@ -2095,28 +2095,28 @@ describe('Farm Plot Storage', () => {
 
 **Local AWS Testing Strategy**:
 
-Kiro's MCP Server enables safe local testing of AWS Bedrock calls without deploying to AWS:
+Kiro's MCP Server enables safe local testing of AWS Local Model calls without deploying to AWS:
 
 1. **Setup MCP Server**:
    - Configure `.kiro/settings/mcp.json` with AWS credentials
-   - Add Bedrock MCP server for local testing
+   - Add Local Model MCP server for local testing
    - Configure auto-approve for safe operations
 
-2. **Local Bedrock Testing**:
+2. **Local Local Model Testing**:
    - Test intent extraction with sample voice transcriptions
    - Test certificate text generation with mock verification data
    - Test correlation analysis with sample income/climate data
-   - Verify Bedrock responses before deploying Lambda functions
+   - Verify Local Model responses before deploying Service Component functions
 
 3. **Mock External Services**:
    - Mock Bhashini API responses for voice testing
    - Mock Copernicus Hub for multi-modal satellite data testing (Sentinel-2 + Sentinel-1)
    - Mock MapMyIndia API for geospatial data testing
    - Mock API Setu adapters (e-RUPI, PFMS, PM-KISAN, e-NAM) for government integration testing
-   - Use LocalStack for S3, Lambda, and Aurora local testing
+   - Use LocalStack for Local Filesystem, Service Component, and SQLite Database local testing
 
 4. **Iterative Development**:
-   - Write Lambda function locally
+   - Write Service Component function locally
    - Test with MCP Server and mocked services
    - Verify correctness with unit and property tests
    - Deploy to AWS only after local validation
@@ -2181,7 +2181,7 @@ Kiro's MCP Server enables safe local testing of AWS Bedrock calls without deploy
 - Error rate by component (target: <1%)
 
 **Logging Strategy**:
-- Structured JSON logs for all Lambda functions
+- Structured JSON logs for all Service Component functions
 - Include correlation ID for request tracing
 - Log all errors with stack traces
 - Log performance metrics (latency, memory usage)

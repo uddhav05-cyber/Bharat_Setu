@@ -33,10 +33,10 @@ digraph BharatSetuArchitecture {
         fontsize=14;
         fontname="Arial Bold";
         
-        apigw [label="AWS API Gateway\nREST + WebSocket", fillcolor="#ffb74d"];
-        cognito [label="AWS Cognito\nJWT Auth + RBAC", fillcolor="#ffb74d"];
+        fastapi [label="FastAPI Application\nREST APIs + WebSockets", fillcolor="#ffb74d"];
+        jwt_auth [label="PyJWT Authentication\nLocal RBAC", fillcolor="#ffb74d"];
         
-        apigw -> cognito;
+        fastapi -> jwt_auth;
     }
     
     // Orchestration Layer
@@ -47,10 +47,10 @@ digraph BharatSetuArchitecture {
         fontsize=14;
         fontname="Arial Bold";
         
-        bedrock [label="Amazon Bedrock\nClaude 3 Haiku\nIntent Extraction", fillcolor="#ce93d8"];
-        eventbridge [label="Amazon EventBridge\nEvent Router", fillcolor="#ce93d8"];
+        voice_model [label="Local Extraction Model\nKeyword Intent\nProcessing", fillcolor="#ce93d8"];
+        local_bus [label="In-Process EventBus\nAsync Pub/Sub Router", fillcolor="#ce93d8"];
         
-        bedrock -> eventbridge;
+        voice_model -> local_bus;
     }
     
     // Service Layer - Carbon-Kosh
@@ -61,11 +61,11 @@ digraph BharatSetuArchitecture {
         fontsize=12;
         fontname="Arial Bold";
         
-        voice_lambda [label="Voice Processing\nLambda", fillcolor="#81c784"];
-        satellite_lambda [label="Satellite Acquisition\nLambda (Sentinel-1 SAR)", fillcolor="#81c784"];
-        verification_lambda [label="Verification\nLambda (SageMaker)", fillcolor="#81c784"];
-        traffic_lambda [label="Traffic Light\nVerifier Lambda", fillcolor="#81c784"];
-        escrow_lambda [label="Escrow & Settlement\nEngine Lambda", fillcolor="#81c784"];
+        voice_service [label="Voice Processing\nService", fillcolor="#81c784"];
+        satellite_service [label="Satellite Acquisition\nService (Sentinel-1 SAR)", fillcolor="#81c784"];
+        verification_service [label="Verification\nService (Local ML)", fillcolor="#81c784"];
+        traffic_service [label="Traffic Light Protocol\nVariance Tracking", fillcolor="#81c784"];
+        escrow_service [label="Escrow & Settlement\nEngine (Mock e-RUPI)", fillcolor="#81c784"];
     }
     
     // Service Layer - Gram-Twin
@@ -76,8 +76,8 @@ digraph BharatSetuArchitecture {
         fontsize=12;
         fontname="Arial Bold";
         
-        twin_lambda [label="Digital Twin\nLambda", fillcolor="#fff176"];
-        hotspot_lambda [label="Hotspot Detection\nLambda", fillcolor="#fff176"];
+        twin_service [label="Digital Twin\nAggregation Service", fillcolor="#fff176"];
+        hotspot_service [label="Hotspot Detection\nService", fillcolor="#fff176"];
     }
     
     // Service Layer - Migration-Shield
@@ -88,21 +88,21 @@ digraph BharatSetuArchitecture {
         fontsize=12;
         fontname="Arial Bold";
         
-        threshold_lambda [label="Threshold Monitor\nLambda", fillcolor="#ef5350"];
-        alert_lambda [label="Alert Notification\nLambda (SNS/SES)", fillcolor="#ef5350"];
+        threshold_service [label="Boolean Threshold\nMonitor Service", fillcolor="#ef5350"];
+        alert_service [label="Alert Notification\nService", fillcolor="#ef5350"];
     }
     
     // Data Layer
     subgraph cluster_data {
-        label="DATA LAYER";
+        label="DATA LAYER (FRUGAL)";
         style=filled;
         color="#e0f2f1";
         fontsize=14;
         fontname="Arial Bold";
         
-        s3 [label="AWS S3\nSatellite Imagery\nEvidence Vault", fillcolor="#4db6ac"];
-        aurora [label="Aurora Serverless v2\nPostgreSQL + PostGIS\nGeospatial Data", fillcolor="#4db6ac"];
-        sagemaker [label="Amazon SageMaker\nSentinel-1 SAR Model\nBiomass Analysis", fillcolor="#4db6ac"];
+        local_storage [label="Local Filesystem\nSatellite Imagery\nEvidence Vault", fillcolor="#4db6ac"];
+        sqlite_db [label="SQLite Database\nRelational Data\nJSON Geospatial", fillcolor="#4db6ac"];
+        local_ml [label="Local ML Inference\nBiomass Analysis\nVariance Models", fillcolor="#4db6ac"];
     }
     
     // External Integrations
@@ -116,42 +116,42 @@ digraph BharatSetuArchitecture {
         bhashini [label="Bhashini API\nCloud Fallback\n(10% of requests)", fillcolor="#f48fb1"];
         sentinel [label="Sentinel-1 SAR\nCopernicus Hub\nAll-Weather Data", fillcolor="#f48fb1"];
         mapmyindia [label="MapMyIndia\nCadastral Maps\nSurvey Numbers", fillcolor="#f48fb1"];
-        erupi [label="e-RUPI Mock\nNPCI Voucher\n(Pilot Phase)", fillcolor="#f48fb1"];
+        erupi [label="e-RUPI Adapter\nNPCI Voucher\n(MOCK)", fillcolor="#f48fb1"];
     }
     
     // Connections - Client to API
-    mobile -> apigw [label="HTTPS/TLS 1.3"];
-    web -> apigw [label="HTTPS/TLS 1.3"];
+    mobile -> fastapi [label="HTTPS/TLS 1.3"];
+    web -> fastapi [label="HTTPS/TLS 1.3"];
     
     // Connections - API to Orchestration
-    cognito -> bedrock [label="JWT Token"];
+    jwt_auth -> voice_model [label="Verified User Context"];
     
     // Connections - Orchestration to Services
-    eventbridge -> voice_lambda [label="Voice Request Event"];
-    eventbridge -> satellite_lambda [label="Farm Registration Event"];
-    eventbridge -> verification_lambda [label="Satellite Data Ready"];
-    eventbridge -> traffic_lambda [label="Verification Complete"];
-    eventbridge -> escrow_lambda [label="Traffic Light Green"];
-    eventbridge -> twin_lambda [label="Digital Twin Request"];
-    eventbridge -> hotspot_lambda [label="Hotspot Analysis"];
-    eventbridge -> threshold_lambda [label="Scheduled Check"];
+    local_bus -> voice_service [label="Voice Request Event"];
+    local_bus -> satellite_service [label="Farm Registration Event"];
+    local_bus -> verification_service [label="Satellite Data Ready"];
+    local_bus -> traffic_service [label="Verification Complete"];
+    local_bus -> escrow_service [label="Traffic Light Green"];
+    local_bus -> twin_service [label="Digital Twin Request"];
+    local_bus -> hotspot_service [label="Hotspot Analysis"];
+    local_bus -> threshold_service [label="Scheduled Check"];
     
     // Connections - Services to Data
-    voice_lambda -> bhashini [label="Fallback\n(confidence < 80%)", style=dashed];
-    satellite_lambda -> sentinel [label="Download Imagery"];
-    satellite_lambda -> s3 [label="Store Tiles"];
-    verification_lambda -> s3 [label="Read Tiles"];
-    verification_lambda -> sagemaker [label="Biomass Inference"];
-    verification_lambda -> aurora [label="Store Results"];
-    traffic_lambda -> aurora [label="VLE Trust Score"];
-    traffic_lambda -> sagemaker [label="Satellite Verification"];
-    escrow_lambda -> erupi [label="Generate Voucher"];
-    escrow_lambda -> aurora [label="Audit Trail"];
-    twin_lambda -> aurora [label="Aggregate Data"];
-    twin_lambda -> mapmyindia [label="Infrastructure Data"];
-    hotspot_lambda -> aurora [label="NDVI History"];
-    threshold_lambda -> aurora [label="Vital Signs"];
-    alert_lambda -> web [label="WebSocket Alert"];
+    voice_service -> bhashini [label="Fallback\n(confidence < 80%)", style=dashed];
+    satellite_service -> sentinel [label="Download Imagery"];
+    satellite_service -> local_storage [label="Store Tiles"];
+    verification_service -> local_storage [label="Read Tiles"];
+    verification_service -> local_ml [label="Biomass Inference"];
+    verification_service -> sqlite_db [label="Store Results"];
+    traffic_service -> sqlite_db [label="VLE Trust Score"];
+    traffic_service -> local_ml [label="Satellite Verification"];
+    escrow_service -> erupi [label="Generate Voucher"];
+    escrow_service -> sqlite_db [label="Audit Trail"];
+    twin_service -> sqlite_db [label="Aggregate Data"];
+    twin_service -> mapmyindia [label="Infrastructure Data"];
+    hotspot_service -> sqlite_db [label="NDVI History"];
+    threshold_service -> sqlite_db [label="Vital Signs"];
+    alert_service -> web [label="WebSocket Alert"];
     
     // Legend
     subgraph cluster_legend {
@@ -162,6 +162,6 @@ digraph BharatSetuArchitecture {
         
         legend1 [label="Solid Line = Primary Flow", shape=plaintext];
         legend2 [label="Dashed Line = Fallback/Optional", shape=plaintext];
-        legend3 [label="Cost: $1.70/village/month", shape=plaintext, fontcolor="#d32f2f"];
+        legend3 [label="Cost Target: $1.70/village/month", shape=plaintext, fontcolor="#d32f2f"];
     }
 }
