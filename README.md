@@ -100,6 +100,14 @@ bharat-setu/
 │           ├── CrisisMap.jsx     # Village health monitoring
 │           ├── TrafficLight.jsx  # VLE fraud detection UI
 │           └── DataExport.jsx    # CSV download
+├── farmer-app/               # React PWA Farmer & VLE Client (Vite)
+│   └── src/
+│       ├── App.jsx           # Router
+│       ├── index.css         # Earth-toned glassmorphism UI
+│       ├── api.js            # Axios backend integration
+│       └── pages/
+│           ├── Login.jsx     # Phone authentication
+│           └── Dashboard.jsx # Plot tracking & Voice PTT Interface
 └── storage/                  # Local file storage (replaces S3)
     ├── satellite/
     ├── certificates/
@@ -147,7 +155,7 @@ The backend will:
 - Start serving on **http://localhost:8000**
 - Swagger UI available at **http://localhost:8000/docs**
 
-### 3. Frontend Setup
+### 3. Admin Dashboard Setup
 
 ```bash
 cd frontend
@@ -155,9 +163,21 @@ npm install
 npm run dev
 ```
 
-Dashboard available at **http://localhost:5173**
+Admin Dashboard available at **http://localhost:5173**
 
-### 4. Run Tests
+### 4. Farmer & VLE Client App Setup
+
+The Farmer App is built as a mobile-first React PWA featuring the Push-to-Talk voice interface.
+
+```bash
+cd farmer-app
+npm install
+npm run dev
+```
+
+Farmer App available at **http://localhost:5174**
+
+### 5. Run Tests
 
 ```bash
 cd backend

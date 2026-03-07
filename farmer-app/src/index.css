@@ -1,0 +1,334 @@
+:root {
+  /* Earth & Agriculture Theme Colors */
+  --bg-primary: #f0f7f4;
+  --bg-secondary: #ffffff;
+
+  --primary: #2e7d32;
+  /* Deep Forest Green */
+  --primary-light: #4caf50;
+  --primary-dark: #1b5e20;
+
+  --accent: #ff8f00;
+  /* Harvest Gold / Orange */
+  --accent-light: #ffb04c;
+
+  --text-main: #2c3e50;
+  --text-muted: #607d8b;
+
+  /* Traffic Light Colors */
+  --status-green: #388e3c;
+  --status-yellow: #fbc02d;
+  --status-red: #d32f2f;
+
+  /* Glassmorphism & UI */
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(255, 255, 255, 0.4);
+  --shadow-sm: 0 4px 6px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 10px 15px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px rgba(0, 0, 0, 0.15);
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-full: 9999px;
+
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-main);
+  background-image:
+    radial-gradient(at 0% 0%, rgba(76, 175, 80, 0.1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, rgba(255, 143, 0, 0.08) 0px, transparent 50%);
+  background-attachment: fixed;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Glassmorphic Cards */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 24px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Typography */
+h1,
+h2,
+h3,
+h4 {
+  color: var(--primary-dark);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Form Elements */
+.input-group {
+  margin-bottom: 20px;
+}
+
+.input-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+
+.glass-input {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: var(--radius-sm);
+  border: 2px solid rgba(46, 125, 50, 0.1);
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1rem;
+  color: var(--text-main);
+  transition: all 0.2s;
+  outline: none;
+}
+
+.glass-input:focus {
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 14px 24px;
+  border-radius: var(--radius-full);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  border: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-light), var(--primary));
+  color: white;
+  box-shadow: 0 4px 12px rgba(46, 125, 50, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(46, 125, 50, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+}
+
+.btn-accent {
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: white;
+  box-shadow: 0 4px 12px rgba(255, 143, 0, 0.3);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+}
+
+.btn-outline:hover {
+  background: rgba(46, 125, 50, 0.05);
+}
+
+/* Status Badges */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-full);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.status-green {
+  background: rgba(56, 142, 60, 0.1);
+  color: var(--status-green);
+}
+
+.status-yellow {
+  background: rgba(251, 192, 45, 0.1);
+  color: #f57f17;
+}
+
+.status-red {
+  background: rgba(211, 47, 47, 0.1);
+  color: var(--status-red);
+}
+
+/* PWA App Layout Specifics */
+.mobile-app-container {
+  max-width: 480px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: white;
+  position: relative;
+  box-shadow: var(--shadow-lg);
+  display: flex;
+  flex-direction: column;
+}
+
+.app-header {
+  background: var(--primary);
+  padding: 20px;
+  color: white;
+  border-bottom-left-radius: var(--radius-lg);
+  border-bottom-right-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  z-index: 10;
+}
+
+.app-content {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  padding-bottom: 90px;
+  /* Space for bottom nav/FAB */
+}
+
+/* Push-To-Talk Floating Action Button (FAB) */
+.voice-fab {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgba(255, 143, 0, 0.4);
+  border: 4px solid white;
+  cursor: pointer;
+  z-index: 50;
+  transition: all 0.2s;
+}
+
+.voice-fab:active,
+.voice-fab.recording {
+  transform: translateX(-50%) scale(0.95);
+  background: var(--status-red);
+  box-shadow: 0 4px 12px rgba(211, 47, 47, 0.4);
+}
+
+.voice-fab.recording::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--status-red);
+  animation: pulse-ring 1.5s cubic-bezier(0.215, 0.61, 0.355, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.8;
+  }
+
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Audio Waveform Animation */
+.waveform-bars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  margin-top: 10px;
+}
+
+.bar {
+  width: 4px;
+  background-color: var(--accent);
+  border-radius: 4px;
+  animation: equalize 1s infinite alternate;
+}
+
+.bar:nth-child(1) {
+  height: 10px;
+  animation-delay: -0.4s;
+}
+
+.bar:nth-child(2) {
+  height: 25px;
+  animation-delay: -0.2s;
+}
+
+.bar:nth-child(3) {
+  height: 40px;
+  animation-delay: 0s;
+}
+
+.bar:nth-child(4) {
+  height: 20px;
+  animation-delay: -0.3s;
+}
+
+.bar:nth-child(5) {
+  height: 15px;
+  animation-delay: -0.1s;
+}
+
+@keyframes equalize {
+  0% {
+    transform: scaleY(0.4);
+  }
+
+  100% {
+    transform: scaleY(1);
+  }
+}
+
+/* Utility Classes */
+.mt-4 {
+  margin-top: 1rem;
+}
+
+.mb-4 {
+  margin-bottom: 1rem;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
