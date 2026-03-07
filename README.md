@@ -3,7 +3,7 @@
   <p align="center"><strong>Unified Rural Intelligence Platform</strong></p>
   <p align="center">
     Carbon-Kosh · Gram-Twin · Migration-Shield<br/>
-    <em>Built entirely with free & open-source technologies</em>
+    <em>Built entirely with free & open-source technologies
   </p>
 </p>
 
